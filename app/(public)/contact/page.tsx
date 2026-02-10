@@ -6,11 +6,12 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Mail, MapPin, Phone, Send, CheckCircle2, MessageSquare } from "lucide-react"
 import { motion } from "framer-motion"
+import { cn } from "@/lib/utils"
 
 const fadeInUp = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.5 }
+    transition: { duration: 0.5, ease: "easeOut" as const }
 }
 
 export default function ContactPage() {
@@ -155,6 +156,3 @@ export default function ContactPage() {
     )
 }
 
-function cn(...inputs: any[]) {
-    return inputs.filter(Boolean).join(' ')
-}
