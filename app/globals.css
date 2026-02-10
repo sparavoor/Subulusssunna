@@ -120,7 +120,7 @@ h6 {
   background: linear-gradient(135deg, #123C30 0%, #1A5445 100%);
 }
 
-@keyframes fade-in-up {
+@keyframes fadeInUp {
   from {
     opacity: 0;
     transform: translateY(20px);
@@ -132,6 +132,6 @@ h6 {
   }
 }
 
-.animate-fade-in-up {
-  animation: fade-in-up 0.6s ease-out forwards;
+.animate-fadeInUp {
+  animation: fadeInUp 0.6s easeOut forwards;
 }
