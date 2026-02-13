@@ -7,7 +7,8 @@ import {
     MessageSquare,
     FileText,
     LogOut,
-    GraduationCap
+    GraduationCap,
+    BookOpen
 } from "lucide-react"
 
 export default function AdminLayout({
@@ -47,6 +48,13 @@ export default function AdminLayout({
                         >
                             <FileText className="h-4 w-4" />
                             News & Events
+                        </Link>
+                        <Link
+                            href="/admin/publications"
+                            className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:bg-muted"
+                        >
+                            <BookOpen className="h-4 w-4" />
+                            Publications
                         </Link>
                         <Link
                             href="/admin/alumni"

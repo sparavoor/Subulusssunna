@@ -12,6 +12,7 @@ const navigation = [
     { name: "About", href: "/#about" },
     { name: "Courses", href: "/#courses" },
     { name: "News", href: "/news" },
+    { name: "Publications", href: "/publications" },
     { name: "Alumni", href: "/alumni" },
     { name: "Contact", href: "/contact" },
     { name: "Student Portal", href: "/login" },

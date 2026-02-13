@@ -17,12 +17,37 @@ const fadeInUp = {
 export default function ContactPage() {
     const [isSubmitting, setIsSubmitting] = useState(false)
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         setIsSubmitting(true)
-        await new Promise((resolve) => setTimeout(resolve, 2000))
-        setIsSubmitting(false)
-        alert("Message sent successfully!")
+
+        const formData = new FormData(e.currentTarget)
+        const data = {
+            name: formData.get("name"),
+            email: formData.get("email"),
+            subject: formData.get("subject"),
+            message: formData.get("message")
+        }
+
+        try {
+            const res = await fetch("/api/messages", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            })
+
+            if (res.ok) {
+                alert("Message sent successfully!")
+                e.currentTarget.reset()
+            } else {
+                alert("Failed to send message. Please try again.")
+            }
+        } catch (error) {
+            console.error("Error sending message:", error)
+            alert("An error occurred. Please try again.")
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
     return (
@@ -112,20 +137,21 @@ export default function ContactPage() {
                                     <div className="grid md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
                                             <label className="text-sm font-bold text-muted-foreground ml-1">Your Name</label>
-                                            <Input placeholder="John Doe" required className="h-14 rounded-2xl bg-muted/30 border-none focus:ring-primary" />
+                                            <Input name="name" placeholder="John Doe" required className="h-14 rounded-2xl bg-muted/30 border-none focus:ring-primary" />
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-sm font-bold text-muted-foreground ml-1">Email Address</label>
-                                            <Input type="email" placeholder="john@example.com" required className="h-14 rounded-2xl bg-muted/30 border-none focus:ring-primary" />
+                                            <Input name="email" type="email" placeholder="john@example.com" required className="h-14 rounded-2xl bg-muted/30 border-none focus:ring-primary" />
                                         </div>
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-sm font-bold text-muted-foreground ml-1">Subject</label>
-                                        <Input placeholder="Admission Inquiry" required className="h-14 rounded-2xl bg-muted/30 border-none focus:ring-primary" />
+                                        <Input name="subject" placeholder="Admission Inquiry" required className="h-14 rounded-2xl bg-muted/30 border-none focus:ring-primary" />
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-sm font-bold text-muted-foreground ml-1">How can we help?</label>
                                         <textarea
+                                            name="message"
                                             className="flex min-h-[180px] w-full rounded-2xl bg-muted/30 border-none px-4 py-4 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus:ring-2 focus:ring-primary"
                                             placeholder="Tell us about your requirements..."
                                             required

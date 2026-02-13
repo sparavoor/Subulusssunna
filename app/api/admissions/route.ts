@@ -1,44 +1,41 @@
 import { NextResponse } from "next/server";
-import fs from "fs/promises";
-import path from "path";
-
-const ADMISSIONS_FILE = path.join(process.cwd(), "lib", "admissions.json");
-
-async function readAdmissions() {
-    try {
-        const data = await fs.readFile(ADMISSIONS_FILE, "utf-8");
-        return JSON.parse(data);
-    } catch (error) {
-        return [];
-    }
-}
-
-async function writeAdmissions(admissions: any[]) {
-    await fs.writeFile(ADMISSIONS_FILE, JSON.stringify(admissions, null, 2));
-}
+import { prisma } from "@/lib/prisma";
 
 export async function GET() {
-    const admissions = await readAdmissions();
-    return NextResponse.json(admissions);
+    try {
+        const admissions = await prisma.admission.findMany({
+            orderBy: { createdAt: 'desc' }
+        });
+        return NextResponse.json(admissions);
+    } catch (error) {
+        return NextResponse.json({ error: "Failed to fetch admissions" }, { status: 500 });
+    }
 }
 
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const admissions = await readAdmissions();
 
-        const newAdmission = {
-            ...body,
-            id: Date.now(),
-            status: "Pending",
-            createdAt: new Date().toISOString()
-        };
-
-        admissions.push(newAdmission);
-        await writeAdmissions(admissions);
+        // Handle potential field mismatches from frontend if any
+        const newAdmission = await prisma.admission.create({
+            data: {
+                fullName: body.fullName,
+                dateOfBirth: body.dob || body.dateOfBirth,
+                gender: body.gender,
+                parentName: body.guardianName || body.parentName,
+                contactNumber: body.contact || body.contactNumber,
+                email: body.email,
+                address: body.address,
+                course: body.program || body.course,
+                previousSchool: body.previousEducation || body.previousSchool,
+                gradePercentage: body.gradePercentage || "N/A",
+                status: "Pending"
+            }
+        });
 
         return NextResponse.json(newAdmission, { status: 201 });
     } catch (error) {
+        console.error("Admission create error:", error);
         return NextResponse.json({ error: "Failed to save admission" }, { status: 500 });
     }
 }
@@ -47,17 +44,13 @@ export async function PATCH(request: Request) {
     try {
         const body = await request.json();
         const { id, status } = body;
-        const admissions = await readAdmissions();
 
-        const index = admissions.findIndex((a: any) => a.id === id);
-        if (index === -1) {
-            return NextResponse.json({ error: "Admission not found" }, { status: 404 });
-        }
+        const updatedAdmission = await prisma.admission.update({
+            where: { id: Number(id) },
+            data: { status }
+        });
 
-        admissions[index].status = status;
-        await writeAdmissions(admissions);
-
-        return NextResponse.json(admissions[index]);
+        return NextResponse.json(updatedAdmission);
     } catch (error) {
         return NextResponse.json({ error: "Failed to update admission" }, { status: 500 });
     }

@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admission {
+  id              Int      @id @default(autoincrement())
+  fullName        String
+  dateOfBirth     String
+  gender          String
+  parentName      String
+  contactNumber   String
+  email           String?
+  address         String
+  course          String
+  previousSchool  String?
+  gradePercentage String?
+  status          String   @default("Pending") // Pending, Approved, Rejected
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Publication {
+  id           Int      @id @default(autoincrement())
+  title        String
+  category     String   // Journal, Book, Article, Newsletter, Magazine
+  author       String
+  date         String   // Storing as string to match current JSON format (YYYY-MM-DD)
+  description  String
+  coverImage   String
+  downloadLink String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model NewsItem {
+  id        Int      @id @default(autoincrement())
+  title     String
+  date      String
+  category  String
+  status    String   @default("Draft") // Published, Draft
+  content   String?  // For full article content
+  image     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AlumniProfile {
+  id        Int      @id @default(autoincrement())
+  name      String
+  year      String   // Batch year
+  position  String
+  visible   Boolean  @default(true)
+  image     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ContactMessage {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  subject   String
+  message   String
+  date      String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Settings {
+  id              Int      @id @default(autoincrement())
+  institutionName String   @default("Subulussunna")
+  email           String   @default("info@subulissunna.com")
+  phone           String   @default("+91 98765 43210")
+  address         String   @default("Subulussunna Islamic Complex, Kerala, India")
+  facebook        String   @default("#")
+  twitter         String   @default("#")
+  instagram       String   @default("#")
+  youtube         String   @default("#")
+  updatedAt       DateTime @updatedAt
+}

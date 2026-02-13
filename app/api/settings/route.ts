@@ -1,13 +1,10 @@
 import { NextResponse } from "next/server";
-import fs from "fs/promises";
-import path from "path";
-
-const SETTINGS_FILE = path.join(process.cwd(), "lib", "settings.json");
+import { prisma } from "@/lib/prisma";
 
 export async function GET() {
     try {
-        const data = await fs.readFile(SETTINGS_FILE, "utf-8");
-        return NextResponse.json(JSON.parse(data));
+        const settings = await prisma.settings.findFirst();
+        return NextResponse.json(settings || {});
     } catch (error) {
         return NextResponse.json({ error: "Failed to load settings" }, { status: 500 });
     }
@@ -16,9 +13,43 @@ export async function GET() {
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        await fs.writeFile(SETTINGS_FILE, JSON.stringify(body, null, 2));
-        return NextResponse.json({ message: "Settings saved successfully" });
+
+        // Check if settings exist, if so update, else create
+        const existingSettings = await prisma.settings.findFirst();
+
+        let updatedSettings;
+        if (existingSettings) {
+            updatedSettings = await prisma.settings.update({
+                where: { id: existingSettings.id },
+                data: {
+                    institutionName: body.institutionName,
+                    email: body.email,
+                    phone: body.phone,
+                    address: body.address,
+                    facebook: body.facebook || body.socials?.facebook,
+                    twitter: body.twitter || body.socials?.twitter,
+                    instagram: body.instagram || body.socials?.instagram,
+                    youtube: body.youtube || body.socials?.youtube,
+                }
+            });
+        } else {
+            updatedSettings = await prisma.settings.create({
+                data: {
+                    institutionName: body.institutionName,
+                    email: body.email,
+                    phone: body.phone,
+                    address: body.address,
+                    facebook: body.facebook || body.socials?.facebook,
+                    twitter: body.twitter || body.socials?.twitter,
+                    instagram: body.instagram || body.socials?.instagram,
+                    youtube: body.youtube || body.socials?.youtube,
+                }
+            });
+        }
+
+        return NextResponse.json({ message: "Settings saved successfully", settings: updatedSettings });
     } catch (error) {
+        console.error(error)
         return NextResponse.json({ error: "Failed to save settings" }, { status: 500 });
     }
 }
